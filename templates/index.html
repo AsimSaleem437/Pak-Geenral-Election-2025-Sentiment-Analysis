@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Comprehensive Election Data Analysis Dashboard</title>
+  <link rel="stylesheet" href="/static/style.css" />
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+
+<body>
+  <header>
+    <h1>Election Data Analysis Dashboard</h1>
+    <nav>
+      <a href="#load_data">Load Data</a>
+      <a href="#eda">EDA</a>
+      <a href="#preprocess">Preprocess</a>
+      <a href="#label_tweets">Label Tweets</a>
+      <a href="#annotate_sentiment">Annotate Sentiment</a>
+      <a href="#sentiment_analysis">Sentiment Analysis</a>
+      <a href="#party_support">Party Support</a>
+      <a href="#sentiment_vs_actual">Sentiment vs Actual</a>
+      <a href="#post_election_analysis">Post Election Analysis</a>
+      <a href="#sentiment_comparison">Pre-Post Sentiment Comparison</a>
+      <a href="#constituency_analysis">Constituency Level Analysis</a>
+      <a href="#predict_party_sentiment">Predict</a>
+      <!-- Link to new section -->
+    </nav>
+  </header>
+
+  <main>
+    <!-- Load Data Section -->
+    <style>
+      /* Hide the loading indicator by default */
+      #loading-indicator {
+        display: none;
+      }
+    </style>
+
+    <section id="load_data">
+      <h2>Load Data</h2>
+      <p style="padding-bottom:2px;">
+        This page displays the initial dataset used for the sentiment analysis project. The dataset, loaded
+        from an Excel file, contains tweets collected before the election. Each row in the table represents a
+        tweet, including information such as the username, tweet content, and the date it was posted.
+      </p>
+      <h4>What this function does:</h4>
+      <p>
+        The load_and_print_excel function reads the provided Excel file, loads the data into a structured
+        table using the pandas library, and displays it in an easily readable format. This allows you to review
+        the raw data before any processing or analysis begins.
+      </p>
+      <br>
+      <button type="button" onclick="loadData()">Load Data</button>
+      <div id="loading-indicator">Loading...</div>
+      <div id="loadDataStatus"></div>
+
+      <!-- Loading indicator (hidden by default) -->
+
+    </section>
+
+    <script>
+      function loadData() {
+        // Show the loading indicator
+        document.getElementById("loading-indicator").style.display = "block";
+
+        // Simulate data loading process
+        setTimeout(function () {
+          document.getElementById("loadDataStatus").innerHTML = "Data loaded successfully!";
+
+          // Hide the loading indicator after loading is complete
+          document.getElementById("loading-indicator").style.display = "none";
+        }, 2000); // Adjust the time as per your data loading duration
+      }
+    </script>
+
+    <!-- EDA Section -->
+    <section id="eda">
+      <h2>Exploratory Data Analysis (EDA)</h2>
+      <p>This page provides a comprehensive overview of the dataset through various analytical methods and
+        visualizations. The aim is to gain initial insights and understand the data before applying further sentiment
+        analysis.</p>
+      <br>
+      <h3>What this function does:</h3>
+      <br>
+      <ul>
+        <li><strong>Data Inspection:</strong> Displays the dataset's shape, column names, and the first few rows for a
+          quick overview.</li>
+        <li><strong>Missing Values Check:</strong> Identifies any missing data in the columns.</li>
+        <li><strong>Descriptive Statistics:</strong> Summarizes key statistics of the dataset.</li>
+        <li><strong>Word Frequency Analysis:</strong> Generates a word cloud to visualize the most frequently used words
+          in the tweets.</li>
+        <li><strong>Time Series Analysis:</strong> Plots the number of tweets over time to show trends and patterns.
+        </li>
+        <li><strong>Stopword Removal:</strong> Removes common words that do not add value to the analysis.</li>
+        <li><strong>Hashtag Analysis:</strong> Extracts and visualizes the most frequent hashtags used in the tweets.
+        </li>
+        <li><strong>Tweet Length Distribution:</strong> Shows the distribution of tweet lengths.</li>
+        <li><strong>Word Count Distribution:</strong> Analyzes the number of words per tweet.</li>
+        <li><strong>Top Users by Tweet Volume:</strong> Identifies the users with the highest number of tweets.</li>
+        <li><strong>Day of the Week Analysis:</strong> (To be added) Examines tweet activity based on the day of the
+          week.</li>
+      </ul>
+      <br>
+
+      <button onclick="runEDA()">Run EDA</button>
+      <div id="edaResults"></div>
+    </section>
+
+
+    <!-- Preprocess Section -->
+    <section id="preprocess">
+      <h2>Preprocess Data</h2>
+      <p>This page showcases the data cleaning and preparation steps essential for accurate sentiment analysis. The
+        preprocessing function transforms the raw tweets into a clean and standardized format, ready for further
+        analysis.</p>
+      <br>
+      <h3>What this function does:</h3>
+      <br>
+      <ul>
+        <li><strong>Text Cleaning:</strong>
+          <ul>
+            <li>Converts all tweets to lowercase.</li>
+            <li>Removes URLs, mentions, hashtags, numbers, special characters, and punctuation.</li>
+            <li>Strips extra spaces to ensure consistency.</li>
+          </ul>
+        </li>
+        <li><strong>Tokenization and Lemmatization:</strong>
+          <ul>
+            <li>(Planned) Breaks down tweets into individual words (tokens).</li>
+            <li>Reduces words to their base form using lemmatization for better analysis.</li>
+          </ul>
+        </li>
+        <li><strong>Handling Missing and Duplicate Data:</strong>
+          <ul>
+            <li>Fills missing tweets with empty strings to maintain dataset integrity.</li>
+            <li>Removes duplicate tweets to ensure unique content.</li>
+          </ul>
+        </li>
+        <li><strong>Output:</strong>
+          <ul>
+            <li>Displays a comparison of raw and cleaned tweets.</li>
+            <li>Shows the number of tweets before and after removing duplicates.</li>
+            <li>Saves the cleaned dataset as an Excel file for download.</li>
+          </ul>
+        </li>
+      </ul>
+      <br>
+      <p>This preprocessing step is critical for reducing noise in the data and enhancing the performance of sentiment
+        analysis models.</p>
+      <br>
+      <button onclick="preprocessData()">Preprocess</button>
+      <div id="preprocessResults"></div>
+    </section>
+
+
+    <!-- Label Tweets Section -->
+    <section id="label_tweets">
+      <h2>Label Tweets</h2>
+      <br>
+      <p>This page displays the results of the party labeling process, where each tweet is analyzed and tagged with the
+        political party it most likely supports. This step is crucial for categorizing tweets by political affiliation,
+        enabling detailed sentiment analysis for each party.</p>
+      <br>
+      <h3>What this function does:</h3>
+      <br>
+      <ul>
+        <li><strong>Party Keyword Matching:</strong>
+          <ul>
+            <li>The function uses a predefined list of keywords and phrases associated with major political parties like
+              PTI, PMLN, PPP, and others. Each tweet is scanned for the presence of these keywords.</li>
+          </ul>
+        </li>
+        <li><strong>Assigning Party Labels:</strong>
+          <ul>
+            <li>Tweets are labeled based on the presence of party-specific keywords.</li>
+            <li>If no relevant keywords are found, the tweet is tagged as "No Party."</li>
+            <li>Only tweets with identified party affiliations are retained for further analysis.</li>
+          </ul>
+        </li>
+        <li><strong>Output:</strong>
+          <ul>
+            <li>Displays a preview of tweets alongside their assigned party labels.</li>
+            <li>Saves the labeled dataset to a new Excel file for download and further use.</li>
+          </ul>
+        </li>
+      </ul>
+      <br>
+
+      <p>This labeling process is essential for segmenting the data by political party, allowing for targeted sentiment
+        analysis and insights.</p>
+      <br>
+      <button onclick="labelTweets()">Label Tweets</button>
+      <div id="labelTweetsResults"></div>
+      <div id="partyDistributionResults" style="margin-top: 10px"></div>
+      <div id="sampleLabeledResults" style="margin-top: 10px"></div>
+      <div id="labelingResults"></div>
+      <script>// Label Tweets
+        const apiBaseUrl = "http://127.0.0.1:8000"; // Define at the top level
+        
+        async function labelTweets() {
+          try {
+            const response = await fetch(`${apiBaseUrl}/label_tweets`, {
+              method: "POST",
+            });
+        
+            if (!response.ok) {
+              throw new Error("Network response was not ok: " + response.statusText);
+            }
+        
+            const result = await response.json();
+        
+            // Clear previous results
+            const labelTweetsResults = document.getElementById("labelTweetsResults");
+            labelTweetsResults.innerHTML = ""; // Clear existing content
+        
+            // Display the message about labeling success
+            const message = document.createElement("p");
+            message.innerText = result.message;
+            message.style.fontWeight = "bold";
+            labelTweetsResults.appendChild(message);
+        
+            // Display party distribution
+            const partyDistributionHeader = document.createElement("h3");
+            partyDistributionHeader.innerText = "Party Distribution";
+            labelTweetsResults.appendChild(partyDistributionHeader);
+        
+            // Create a list for party distribution
+            const partyDistributionList = document.createElement("ul");
+            Object.entries(result.party_distribution).forEach(([party, count]) => {
+              const listItem = document.createElement("li");
+              listItem.innerText = `${party}: ${count} tweets`;
+              partyDistributionList.appendChild(listItem);
+            });
+            labelTweetsResults.appendChild(partyDistributionList);
+        
+            // Display sample labeled tweets
+            const sampleLabeledHeader = document.createElement("h3");
+            sampleLabeledHeader.innerText = "Sample Labeled Tweets";
+            labelTweetsResults.appendChild(sampleLabeledHeader);
+        
+            // Create a table for sample labeled tweets
+            const sampleLabeledTable = document.createElement("table");
+            sampleLabeledTable.style.width = "100%";
+            sampleLabeledTable.style.borderCollapse = "collapse";
+        
+            // Add table header for sample labeled tweets
+            const sampleHeaderRow = document.createElement("tr");
+            ["Tweet", "Party"].forEach((headerText) => {
+              const headerCell = document.createElement("th");
+              headerCell.innerText = headerText;
+              headerCell.style.border = "1px solid #ddd";
+              headerCell.style.padding = "8px";
+              headerCell.style.backgroundColor = "#f2f2f2";
+              headerCell.style.fontWeight = "bold";
+              headerCell.style.textAlign = "center";
+              sampleHeaderRow.appendChild(headerCell);
+            });
+            sampleLabeledTable.appendChild(sampleHeaderRow);
+        
+            // Populate sample labeled tweets data rows
+            result.sample_labeled.forEach((item) => {
+              const row = document.createElement("tr");
+        
+              const tweetCell = document.createElement("td");
+              tweetCell.innerText = item.cleaned_tweet || "No tweet content"; // Handle undefined
+              tweetCell.style.border = "1px solid #ddd";
+              tweetCell.style.padding = "8px";
+              tweetCell.style.textAlign = "left";
+        
+              const partyCell = document.createElement("td");
+              partyCell.innerText = item.Party || "No party assigned"; // Handle undefined
+              partyCell.style.border = "1px solid #ddd";
+              partyCell.style.padding = "8px";
+              partyCell.style.textAlign = "center";
+        
+              row.appendChild(tweetCell);
+              row.appendChild(partyCell);
+              sampleLabeledTable.appendChild(row);
+            });
+        
+            // Append sample labeled tweets table to results container
+            labelTweetsResults.appendChild(sampleLabeledTable);
+        
+            //Set download link for labeled file if provided
+            // if (result.file_saved_path) {
+            //   const downloadLink = document.createElement("a");
+            //   downloadLink.href = `${apiBaseUrl}/${result.file_saved_path}`;
+            //   downloadLink.download = "labeled_tweets.xlsx";
+            //   downloadLink.innerText = "Download Labeled Data";
+            //   downloadLink.style.display = "block";
+            //   downloadLink.style.marginTop = "10px";
+        
+            //   labelTweetsResults.appendChild(downloadLink);
+            // }
+          } catch (error) {
+            console.error("Error labeling tweets:", error);
+            document.getElementById("labelTweetsResults").innerText =
+              "Error: " + error.message;
+          }
+        }
+        </script>
+    </section>
+
+
+    <!-- Annotate Sentiment Section -->
+    <section id="annotate_sentiment">
+      <h2>Annotate Sentiment</h2>
+      <br>
+      <p>This page presents the results of the sentiment annotation process, where each labeled tweet is analyzed to
+        determine its sentiment—positive, negative, or neutral—using the VADER sentiment analysis tool.</p>
+      <h3>What this function does:</h3>
+      <br>
+      <ul>
+        <li><strong>Sentiment Analysis with VADER:</strong>
+          <ul>
+            <li>VADER (Valence Aware Dictionary and sEntiment Reasoner) is a lexicon-based sentiment analysis tool
+              specifically designed for social media text.</li>
+            <li>It computes a compound score for each tweet, indicating the overall sentiment polarity.</li>
+          </ul>
+        </li>
+        <li><strong>Custom Sentiment Classification:</strong>
+          <ul>
+            <li>Tweets are classified into three categories:</li>
+            <li><strong>Positive:</strong> Compound score ≥ 0.3</li>
+            <li><strong>Negative:</strong> Compound score ≤ -0.3</li>
+            <li><strong>Neutral:</strong> Compound score in between these thresholds</li>
+          </ul>
+        </li>
+        <li><strong>Output:</strong>
+          <ul>
+            <li>Displays a sample of tweets with their corresponding party labels and VADER sentiment classification.
+            </li>
+          </ul>
+        </li>
+      </ul>
+      <br>
+      <p>This step enhances the dataset by adding a layer of sentiment information, allowing for nuanced insights into
+        public sentiment across different political parties.</p>
+      <br>
+      <!-- Button to trigger annotation -->
+      <button onclick="annotateSentiment()">Annotate Sentiment</button>
+
+      <!-- Result containers -->
+      <div id="annotateSentimentResults" style="margin-top: 15px; border-top: 1px solid #ddd; padding-top: 10px;"></div>
+      <div id="sentimentDistributionResults" style="margin-top: 15px;"></div>
+      <div id="sampleAnnotatedTweets" style="margin-top: 15px;"></div>
+      <div id="outputFileDownloadLink" style="margin-top: 15px;"></div>
+      <script>
+         // Define at the top level
+
+        async function annotateSentiment() {
+          const apiBaseUrl = "http://127.0.0.1:8000";
+          try {
+            const response = await fetch(`${apiBaseUrl}/annotate_sentiment`, {
+              method: "POST",
+            });
+
+            if (!response.ok) {
+              throw new Error("Network response was not ok: " + response.statusText);
+            }
+
+            const result = await response.json();
+
+            // Clear previous results
+            const annotateSentimentResults = document.getElementById(
+              "annotateSentimentResults"
+            );
+            annotateSentimentResults.innerHTML = ""; // Clear existing content
+
+            // Display the message about annotation success
+            const message = document.createElement("p");
+            message.innerText = result.message;
+            message.style.fontWeight = "bold";
+            annotateSentimentResults.appendChild(message);
+
+            // Display sentiment distribution in a table format
+            const sentimentDistributionTable = document.createElement("table");
+            sentimentDistributionTable.style.width = "100%";
+            sentimentDistributionTable.style.borderCollapse = "collapse";
+            sentimentDistributionTable.style.marginBottom = "20px";
+
+            // Add table header for sentiment distribution
+            const headerRow = document.createElement("tr");
+            ["Sentiment", "Count"].forEach((headerText) => {
+              const headerCell = document.createElement("th");
+              headerCell.innerText = headerText;
+              headerCell.style.border = "1px solid #ddd";
+              headerCell.style.padding = "8px";
+              headerCell.style.backgroundColor = "#f2f2f2";
+              headerCell.style.fontWeight = "bold";
+              headerCell.style.textAlign = "center";
+              headerRow.appendChild(headerCell);
+            });
+            sentimentDistributionTable.appendChild(headerRow);
+
+            // Populate sentiment distribution data rows
+            Object.entries(result.sentiment_distribution).forEach(
+              ([sentiment, count]) => {
+                const row = document.createElement("tr");
+
+                const sentimentCell = document.createElement("td");
+                sentimentCell.innerText = sentiment;
+                sentimentCell.style.border = "1px solid #ddd";
+                sentimentCell.style.padding = "8px";
+                sentimentCell.style.textAlign = "center";
+
+                const countCell = document.createElement("td");
+                countCell.innerText = count;
+                countCell.style.border = "1px solid #ddd";
+                countCell.style.padding = "8px";
+                countCell.style.textAlign = "center";
+
+                row.appendChild(sentimentCell);
+                row.appendChild(countCell);
+                sentimentDistributionTable.appendChild(row);
+              }
+            );
+
+            // Append sentiment distribution table to results container
+            annotateSentimentResults.appendChild(sentimentDistributionTable);
+
+            // Display sample annotated tweets in a table format
+            const sampleAnnotatedTable = document.createElement("table");
+            sampleAnnotatedTable.style.width = "100%";
+            sampleAnnotatedTable.style.borderCollapse = "collapse";
+
+            // Add table header for sample annotated tweets
+            const sampleHeaderRow = document.createElement("tr");
+            ["Tweet", "Sentiment"].forEach((headerText) => {
+              const headerCell = document.createElement("th");
+              headerCell.innerText = headerText;
+              headerCell.style.border = "1px solid #ddd";
+              headerCell.style.padding = "8px";
+              headerCell.style.backgroundColor = "#f2f2f2";
+              headerCell.style.fontWeight = "bold";
+              headerCell.style.textAlign = "center";
+              sampleHeaderRow.appendChild(headerCell);
+            });
+            sampleAnnotatedTable.appendChild(sampleHeaderRow);
+
+            // Populate sample annotated tweets data rows
+            result.sample_annotated.forEach((item) => {
+              const row = document.createElement("tr");
+
+              const tweetCell = document.createElement("td");
+              tweetCell.innerText = item.cleaned_tweet;
+              tweetCell.style.border = "1px solid #ddd";
+              tweetCell.style.padding = "8px";
+              tweetCell.style.textAlign = "left";
+
+              const sentimentCell = document.createElement("td");
+              sentimentCell.innerText = item.Vader_Sentiment;
+              sentimentCell.style.border = "1px solid #ddd";
+              sentimentCell.style.padding = "8px";
+              sentimentCell.style.textAlign = "center";
+
+              row.appendChild(tweetCell);
+              row.appendChild(sentimentCell);
+              sampleAnnotatedTable.appendChild(row);
+            });
+
+            // Append sample annotated tweets table to results container
+            annotateSentimentResults.appendChild(sampleAnnotatedTable);
+
+            // Create download link if file path is provided
+            // if (result.file_path) {
+            //   const downloadLink = document.createElement("a");
+            //   downloadLink.href = `${apiBaseUrl}/${result.file_path.replace(
+            //     /\\/g,
+            //     "/"
+            //   )}`;
+            //   downloadLink.download = "labeled_tweets_with_sentiments.xlsx";
+            //   downloadLink.innerText = "Download Annotated Sentiment Data";
+            //   downloadLink.style.display = "block";
+            //   downloadLink.style.marginTop = "10px";
+
+            //   // Clear any existing link and append the new link
+            //   const outputFileDownloadLink = document.getElementById(
+            //     "outputFileDownloadLink"
+            //   );
+            //   outputFileDownloadLink.innerHTML = ""; // Clear any previous content
+            //   outputFileDownloadLink.appendChild(downloadLink);
+            // }
+          } catch (error) {
+            console.error("Error annotating sentiment:", error);
+            document.getElementById("annotateSentimentResults").innerText =
+              "Error: " + error.message;
+          }
+        }
+      </script>
+    </section>
+
+
+    <!-- Sentiment Analysis Section -->
+    <section id="sentiment_analysis">
+      <h2>Sentiment Analysis</h2>
+      <br>
+      <p>This page displays a comprehensive analysis of sentiment across tweets, categorized by political party, using
+        various visualizations. The sentiment analysis helps to understand the public's emotional response to different
+        political parties over time.</p>
+      <br>
+      <h3>Key Insights Provided:</h3>
+      <br>
+      <ul>
+        <li><strong>Overall Sentiment Distribution:</strong>
+          <p>A bar plot shows the general distribution of Positive, Negative, and Neutral sentiments across all tweets.
+          </p>
+        </li>
+        <li><strong>Sentiment Distribution by Party:</strong>
+          <p>A detailed bar chart visualizes how each political party's tweets are categorized into different
+            sentiments.</p>
+        </li>
+        <li><strong>Word Clouds:</strong>
+          <p>Unique word clouds for each party highlight the most frequent terms associated with that party, offering
+            insights into the main themes of discussion.</p>
+        </li>
+        <li><strong>Stacked Bar Plot of Sentiments per Party:</strong>
+          <p>This visualization stacks sentiment counts for each party, providing a quick comparative view of emotional
+            tone within party-specific tweets.</p>
+        </li>
+
+        <br>
+        <p>This page provides a rich analysis of sentiment trends and distribution, enabling users to derive actionable
+          insights from the data.</p>
+        <br>
+        <button onclick="runSentimentAnalysis()">Analyze Sentiments</button>
+        <div id="sentimentAnalysisResults"></div>
+        <div id="sentimentPlotContainer"></div>
+        <div id="partySentimentPlotContainer"></div>
+        <div id="tweetVolumeContainer"></div>
+        <div id="trendOverTimeContainer"></div>
+        <div id="stackedBarContainer"></div>
+        <div id="sunburstPlotContainer"></div>
+        <div id="wordcloudContainer"></div>
+    </section>
+
+
+    <!-- Party Support Section -->
+    <section id="party_support">
+      <h2>Party Support Analysis</h2>
+      <br>
+      <p>This page presents an analysis of tweet distribution based on political party support, offering insights into
+        the popularity and discussion volume surrounding each party.</p>
+      <br>
+      <h3>Key Features:</h3>
+      <br>
+      <ul>
+        <li><strong>Data Validation and Loading:</strong>
+          <p>The page ensures the correct file is loaded and verifies the presence of the required 'Party' column in the
+            dataset. If any issues arise (e.g., missing file, empty data, or missing column), appropriate error messages
+            are displayed.</p>
+        </li>
+        <li><strong>Sample Data Display:</strong>
+          <p>A preview of the first few entries from the 'Party' column is shown to verify the data being analyzed.</p>
+        </li>
+        <li><strong>Party Support Counts:</strong>
+          <p>The total number of tweets supporting each party is counted and displayed, providing a clear view of which
+            parties dominate the conversation.</p>
+        </li>
+        <li><strong>Party Support Percentages:</strong>
+          <p>The percentage of tweets supporting each party is calculated, offering a proportional view of support
+            relative to the total number of tweets.</p>
+        </li>
+        <li><strong>Visualization - Bar Plots:</strong>
+          <ul>
+            <li><strong>Count Plot:</strong> A bar plot illustrates the number of tweets supporting each party.</li>
+            <li><strong>Percentage Plot:</strong> Another bar plot shows the percentage of tweets for each party,
+              providing a comparative perspective.</li>
+          </ul>
+          <p>Both plots use a vibrant color palette and are designed for easy interpretation, with labels and titles to
+            guide viewers.</p>
+        </li>
+      </ul>
+      <br>
+      <p>This page offers a straightforward yet detailed breakdown of political party support, crucial for understanding
+        the public's alignment and engagement in the context of election-related discussions.</p>
+      <br>
+      <button onclick="analyzePartySupport()">Analyze Party Support</button>
+      <div id="partySupportResults"></div>
+      <div id="partySupportPlots"></div>
+    </section>
+
+
+    <!-- Sentiment vs Actual Section -->
+    <!-- Sentiment vs Actual Results Section -->
+    <section id="sentiment_vs_actual">
+      <h2>Sentiment vs Actual Results</h2>
+      <br>
+      <p>This page provides a comprehensive comparison between the public sentiment expressed through tweets and the
+        actual election outcomes in terms of seats won by each political party.</p>
+      <br>
+      <h3>Key Features:</h3>
+      <br>
+      <ul>
+        <li><strong>Data Loading and Preprocessing:</strong>
+          <p>Loads and processes tweet data and actual seat counts, ensuring consistent labeling across datasets,
+            including proper handling of parties grouped as 'Others'.</p>
+        </li>
+        <li><strong>Tweet and Seat Comparison:</strong>
+          <p>Displays a combined analysis of the number of tweets supporting each party against the actual seats won in
+            the election. Provides both numerical counts and percentage-based comparisons.</p>
+        </li>
+        <li><strong>Dual-Axis Bar Plot:</strong>
+          <p>Visualizes tweet counts and seats won side-by-side on a dual-axis bar chart, allowing for easy comparison
+            of public sentiment versus actual results.</p>
+        </li>
+        <li><strong>Percentage Analysis:</strong>
+          <p>Presents normalized percentage data for tweets and seats, showing the proportional support and actual
+            success of each party. Highlights the percentage difference between public sentiment and election outcomes
+            using a bar plot.</p>
+        </li>
+        <li><strong>Difference Metrics:</strong>
+          <p>Calculates and displays numerical and percentage differences between tweet support and actual seats won,
+            offering insights into discrepancies between public discourse and election results.</p>
+        </li>
+        <li><strong>Visual Highlights:</strong>
+          <p>Clear, color-coded plots make it easy to spot trends, with annotations on the percentage difference chart
+            to emphasize significant deviations.</p>
+        </li>
+      </ul>
+      <br>
+      <p>This page effectively illustrates how closely (or not) public sentiment on social media aligns with real-world
+        electoral success, providing valuable insights for political analysis.</p>
+      <br>
+      <button onclick="compareSentimentWithActual()">Compare Sentiment and Actual</button>
+      <div id="sentimentVsActualResults"></div>
+    </section>
+
+    <!-- Post Election Analysis Results Section -->
+    <section id="post_election_analysis">
+      <h2>Post Election Analysis Results</h2>
+      <br>
+      <p>This module analyzes public sentiment expressed in tweets following an election. It includes several steps:</p>
+      <br>
+      <ul>
+        <li><strong>Data Preprocessing:</strong>
+          <p>Tweets are cleaned by removing URLs, mentions, hashtags, numbers, and punctuation. Duplicates are removed
+            to ensure unique entries.</p>
+        </li>
+        <li><strong>Party Labeling:</strong>
+          <p>Tweets are labeled based on keywords related to political parties (e.g., PTI, PMLN, PPP, Others).</p>
+        </li>
+        <li><strong>Sentiment Analysis:</strong>
+          <p>The VADER sentiment analysis tool is used to classify tweets as Positive, Neutral, or Negative.</p>
+        </li>
+        <br>
+        <li><strong>Visualization:</strong>
+          <ul>
+            <li>Overall Sentiment Distribution: Displays the proportion of sentiments across all tweets.</li>
+            <li>Sentiment by Party: Shows sentiment distribution for each political party.</li>
+            <li>Word Clouds: Visual representations of common words for each party.</li>
+            <li>Stacked Bar Plot: Highlights the count of different sentiments per party.</li>
+            <li>Tweet Volume Over Time: Trends in tweet frequency post-election.</li>
+            <li>Sentiment Trend Over Time: Tracks sentiment changes over time.</li>
+            <li>Interactive Charts: Includes a stacked bar chart and a sunburst chart for dynamic exploration of
+              sentiment distribution.</li>
+          </ul>
+        </li>
+      </ul>
+      <br>
+      <p>The analysis provides insights into public opinion dynamics, party support, and sentiment trends after the
+        election.</p>
+      <br>
+      <button id="fetchResultsBtn" aria-expanded="false" onclick="fetchResults()">Show Results</button>
+      <div id="results" class="hidden">
+        <h3>Results Overview</h3>
+        <table id="resultsTable" aria-describedby="resultsDescription"></table>
+        <div id="plots" class="image-container" aria-labelledby="plotsTitle">
+          <h3 id="plotsTitle">Visualizations</h3>
+          <!-- Placeholder for visualizations such as charts and word clouds -->
+        </div>
+      </div>
+      <p id="resultsDescription" style="display: none">Fetching results, please wait...</p>
+      <div id="loadingIndicator" style="display: none">Loading...</div>
+    </section>
+
+
+    <!-- Sentiment Comparison Section -->
+    <section id="sentiment_comparison">
+      <h2>Sentiment Comparison</h2>
+      <br>
+      <p>This module compares sentiment analysis results from pre-election and post-election tweets to identify shifts
+        in public opinion. The analysis involves the following steps:</p>
+      <br>
+      <ul>
+        <li><strong>Data Preprocessing:</strong>
+          <p>Loads the pre-election and post-election datasets, ensuring proper date parsing and handling of invalid
+            data.</p>
+        </li>
+        <li><strong>Sentiment Distribution Comparison:</strong>
+          <p>Displays side-by-side visualizations of overall sentiment distributions for both pre- and post-election
+            tweets.</p>
+        </li>
+        <li><strong>Sentiment by Party Comparison:</strong>
+          <p>Compares the sentiment distribution for each political party in pre- and post-election datasets using
+            side-by-side bar charts.</p>
+        </li>
+        <li><strong>Sentiment Trend Over Time:</strong>
+          <p>Plots the sentiment trend over time, showcasing how sentiment for each category (Positive, Neutral,
+            Negative) evolved before and after the election.</p>
+        </li>
+        <li><strong>Interactive Sunburst Chart:</strong>
+          <p>Provides interactive sunburst charts for both pre- and post-election data to visualize the distribution of
+            sentiments across political parties.</p>
+      </ul>
+      <br>
+      <p>This analysis helps understand how public sentiment changed in response to the election results and compares
+        sentiment dynamics for different political parties across time.</p>
+      <br>
+      <button id="fetch-button" onclick="fetchSentimentComparison()">Fetch Sentiment Comparison Data</button>
+
+      <!-- Loading indicator -->
+      <div id="loading-indicator" style="display: none">Loading data, please wait...</div>
+
+      <!-- Error message container -->
+      <div id="main-error-container" style="color: red; display: none"></div>
+
+      <!-- Visualization container -->
+      <div id="visualization-container" style="display: flex; flex-wrap: wrap; gap: 20px; margin-top: 20px">
+        <div class="img-wrapper" id="overall-sentiment"></div>
+        <div class="img-wrapper" id="sentiment-by-party"></div>
+        <div class="img-wrapper" id="pre-trend"></div>
+        <div class="img-wrapper" id="post-trend"></div>
+        <div class="img-wrapper" id="pre-sunburst"></div>
+        <div class="img-wrapper" id="post-sunburst"></div>
+      </div>
+    </section>
+
+
+    <!-- Constituency Level Analysis Section -->
+    <!-- Constituency Level Analysis Section -->
+    <section id="constituency_analysis">
+      <h2>Constituency Level Analysis</h2>
+      <br>
+      <p>This module performs a detailed analysis comparing election vote distribution and tweet sentiment for various
+        constituencies. The analysis steps include:</p>
+      <br>
+      <ul>
+        <li><strong>Data Loading and Preprocessing:</strong>
+          <ul>
+            <li><strong>Voting Data:</strong> Loads vote distribution data from an Excel file (Form 47.xlsx) for each
+              constituency, cleaning and preparing it for analysis.</li>
+            <li><strong>Tweet Data:</strong> Loads and preprocesses tweets from another Excel file (Constituency
+              tweets.xlsx), including text cleaning, party labeling, and sentiment analysis.</li>
+          </ul>
+        </li>
+        <li><strong>Sentiment Analysis:</strong>
+          <p>Uses the VADER sentiment analysis tool to classify tweets into Positive, Neutral, or Negative sentiments.
+          </p>
+        </li>
+        <li><strong>Vote and Sentiment Distribution:</strong>
+          <p>Generates bar plots for vote distribution by party and stacked bar plots for sentiment distribution per
+            party within each constituency.</p>
+        </li>
+        <li><strong>Constituency-Wise Comparison:</strong>
+          <p>Compares the vote distribution against sentiment distribution for each constituency using a dual-axis bar
+            plot. This visualization aligns total votes with tweet sentiments to show potential correlations or
+            discrepancies.</p>
+      </ul>
+      <br>
+      <p><strong>Utility:</strong> This analysis provides insights into how public sentiment (as expressed on Twitter)
+        aligns or diverges from actual voting patterns across different constituencies, aiding in understanding voter
+        behavior and sentiment dynamics.</p>
+      <br>
+      <button onclick="fetchConstituencyLevelAnalysis()">Run Analysis</button>
+      <div id="image-gallery"></div>
+    </section>
+
+
+    <!-- Predict Party and Sentiment -->
+    <section id="predict_party_sentiment">
+      <h2>Predict Party and Sentiment</h2>
+      <form id="predictionForm">
+        <label for="textInput">Enter text:</label>
+        <input type="text" id="textInput" required />
+        <button type="submit">Predict</button>
+      </form>
+      <div id="result"></div>
+    </section>
+    <section id="predictionSection">
+      <h1>Party and Sentiment Prediction</h1>
+      <textarea id="inputText" rows="5" cols="50" placeholder="Enter text or tweet here"></textarea><br>
+      <button onclick="predict()">Predict</button>
+
+      <h2>Results:</h2>
+      <p><strong>Party:</strong> <span id="partyResult"></span></p>
+      <p><strong>Sentiment:</strong> <span id="sentimentResult"></span></p>
+    </section>
+
+  </main>
+
+  <script src="/static/script.js"></script>
+  <script src="/static/app.js"></script>
+  <script src="/static/loadData.js"></script>
+  <script src="/static/eda.js"></script>
+  <script src="/static/preprocessData.js"></script>
+  <script src="/static/labelTweets.js"></script>
+  <script src="/static/annotateSentiment.js"></script>
+  <script src="/static/runSentimentAnalysis.js"></script>
+  <script src="/static/analyzePartySupport.js"></script>
+  <script src="/static/compareSentimentWithActual.js"></script>
+  <script src="/static/prediction.js"></script>
+</body>
+
+</html>
